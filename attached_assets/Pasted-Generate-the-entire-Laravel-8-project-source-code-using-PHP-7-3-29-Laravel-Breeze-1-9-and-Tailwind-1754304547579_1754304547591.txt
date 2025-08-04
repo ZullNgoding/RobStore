@@ -1,0 +1,88 @@
+Generate the entire Laravel 8 project source code using PHP 7.3.29, Laravel Breeze 1.9, and Tailwind CSS, for a Robux top-up website (similar in layout and feel to roblox.com).
+🔧 Technology Stack:
+
+    PHP 7.3.29
+
+    Laravel 8.x
+
+    Laravel Breeze 1.9 (Blade-based auth with Tailwind CSS and Alpine.js)
+
+    Tailwind CSS 2.x
+
+    Optional: Alpine.js for dynamic interactivity
+
+📦 Features to Include:
+
+    User authentication using Breeze (/login, /register)
+
+    Landing page (/) with:
+
+        Responsive, modern, and dynamic navbar
+
+        Smooth page transitions (using Alpine.js or CSS animations)
+
+        A dedicated 3D interactive container (with ID: #robux-3d-preview) between the navbar and page content, to later embed a mouse-reactive 3D object (e.g. using Three.js)
+
+    Robux Top-Up Page (/topup):
+
+        Form fields:
+
+            Roblox username
+
+            Robux package (dropdown): 80, 400, 800, 1700
+
+            Payment method (dropdown): QRIS, Dana, GoPay
+
+        Auto-calculated total price
+
+        Submit button that saves the transaction to the database
+
+        Frontend validation and success/error feedback
+
+    Transaction History Page (/history):
+
+        Shows all top-up records for the currently logged-in user
+
+        Displays: Roblox username, Robux amount, payment method, total price, and transaction status (e.g. pending/success)
+
+    Fully responsive design, mobile-first, clean and modern layout
+
+📁 Laravel Project Structure:
+
+    Use Blade components for UI elements
+
+    Main layout in resources/views/layouts/app.blade.php
+
+    Use TopUpController with resourceful routes
+
+    Model: Transaction with migration fields:
+
+        username, robux_amount, payment_method, total_price, status, user_id
+
+🖼️ UI/UX Requirements:
+
+    Dynamic sticky navbar with scroll and hover animations
+
+    Smooth page transition effects (e.g., fade or slide)
+
+    Hover-glow effect on buttons
+
+    #robux-3d-preview container should be full-width and have a minimum height of 400px, ready for integration with a 3D engine (e.g., Three.js)
+
+📄 Output Requirements:
+
+    Include all code files:
+
+        routes/web.php
+
+        All controllers (e.g. TopUpController, HistoryController)
+
+        Blade views and layouts
+
+        Migrations and Eloquent models
+
+        Tailwind configurations (if customized)
+
+        Add brief inline comments in the code to explain key sections
+
+❗ You do not need to integrate with the real Robux API — mock the transaction logic and store all data locally.
