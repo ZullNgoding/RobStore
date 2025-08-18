@@ -17,7 +17,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: payment_method; Type: TYPE; Schema: public; Owner: neondb_owner
+-- Name: payment_method; Type: TYPE; Schema: public; Owner: postgres
 --
 
 CREATE TYPE public.payment_method AS ENUM (
@@ -27,10 +27,10 @@ CREATE TYPE public.payment_method AS ENUM (
 );
 
 
-ALTER TYPE public.payment_method OWNER TO neondb_owner;
+ALTER TYPE public.payment_method OWNER TO "Zul";
 
 --
--- Name: transaction_status; Type: TYPE; Schema: public; Owner: neondb_owner
+-- Name: transaction_status; Type: TYPE; Schema: public; Owner: postgres
 --
 
 CREATE TYPE public.transaction_status AS ENUM (
@@ -40,14 +40,14 @@ CREATE TYPE public.transaction_status AS ENUM (
 );
 
 
-ALTER TYPE public.transaction_status OWNER TO neondb_owner;
+ALTER TYPE public.transaction_status OWNER TO "Zul";
 
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: sessions; Type: TABLE; Schema: public; Owner: neondb_owner
+-- Name: sessions; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.sessions (
@@ -57,10 +57,10 @@ CREATE TABLE public.sessions (
 );
 
 
-ALTER TABLE public.sessions OWNER TO neondb_owner;
+ALTER TABLE public.sessions OWNER TO "Zul";
 
 --
--- Name: transactions; Type: TABLE; Schema: public; Owner: neondb_owner
+-- Name: transactions; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.transactions (
@@ -76,10 +76,10 @@ CREATE TABLE public.transactions (
 );
 
 
-ALTER TABLE public.transactions OWNER TO neondb_owner;
+ALTER TABLE public.transactions OWNER TO "Zul";
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: neondb_owner
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.users (
@@ -93,10 +93,10 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users OWNER TO neondb_owner;
+ALTER TABLE public.users OWNER TO "Zul";
 
 --
--- Data for Name: sessions; Type: TABLE DATA; Schema: public; Owner: neondb_owner
+-- Data for Name: sessions; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.sessions (sid, sess, expire) FROM stdin;
@@ -104,7 +104,7 @@ COPY public.sessions (sid, sess, expire) FROM stdin;
 
 
 --
--- Data for Name: transactions; Type: TABLE DATA; Schema: public; Owner: neondb_owner
+-- Data for Name: transactions; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.transactions (id, user_id, username, robux_amount, payment_method, total_price, status, created_at, updated_at) FROM stdin;
@@ -112,7 +112,7 @@ COPY public.transactions (id, user_id, username, robux_amount, payment_method, t
 
 
 --
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: neondb_owner
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.users (id, email, first_name, last_name, profile_image_url, created_at, updated_at) FROM stdin;
@@ -120,7 +120,7 @@ COPY public.users (id, email, first_name, last_name, profile_image_url, created_
 
 
 --
--- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: neondb_owner
+-- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.sessions
@@ -128,7 +128,7 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- Name: transactions transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: neondb_owner
+-- Name: transactions transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.transactions
@@ -136,7 +136,7 @@ ALTER TABLE ONLY public.transactions
 
 
 --
--- Name: users users_email_unique; Type: CONSTRAINT; Schema: public; Owner: neondb_owner
+-- Name: users users_email_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.users
@@ -144,7 +144,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: neondb_owner
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.users
@@ -152,35 +152,17 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: IDX_session_expire; Type: INDEX; Schema: public; Owner: neondb_owner
+-- Name: IDX_session_expire; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX "IDX_session_expire" ON public.sessions USING btree (expire);
 
 
 --
--- Name: transactions transactions_user_id_users_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: neondb_owner
+-- Name: transactions transactions_user_id_users_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.transactions
     ADD CONSTRAINT transactions_user_id_users_id_fk FOREIGN KEY (user_id) REFERENCES public.users(id);
 
-
---
--- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: cloud_admin
---
-
-ALTER DEFAULT PRIVILEGES FOR ROLE cloud_admin IN SCHEMA public GRANT ALL ON SEQUENCES TO neon_superuser WITH GRANT OPTION;
-
-
---
--- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: cloud_admin
---
-
-ALTER DEFAULT PRIVILEGES FOR ROLE cloud_admin IN SCHEMA public GRANT ALL ON TABLES TO neon_superuser WITH GRANT OPTION;
-
-
---
--- PostgreSQL database dump complete
---
 

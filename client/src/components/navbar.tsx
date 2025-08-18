@@ -40,7 +40,7 @@ export default function Navbar() {
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
                 <Box className="text-white text-xl" size={24} />
               </div>
-              <span className="text-2xl font-bold text-blue-500">RobuxHub</span>
+              <span className="text-2xl font-bold text-blue-500">RobStore</span>
             </Link>
 
             {/* Desktop Navigation */}

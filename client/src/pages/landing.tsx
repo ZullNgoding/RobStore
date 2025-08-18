@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import  Coin3D  from "@/components/Coin3D";
 import { 
   Zap, 
   Shield, 
@@ -9,8 +10,8 @@ import {
   Tags, 
   Smartphone, 
   History,
-  Coins,
   Play,
+  Coins,
   Twitter,
   Youtube
 } from "lucide-react";
@@ -88,19 +89,13 @@ export default function Landing() {
         </div>
 
         {/* 3D Interactive Container */}
-        <div id="robux-3d-preview" className="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-[400px] flex items-center justify-center relative overflow-hidden">
+        <div
+          id="robux-3d-preview"
+          className="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-[400px] flex items-center justify-center relative overflow-hidden"
+        >
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-transparent to-green-500/10 animate-pulse"></div>
-          <div className="text-center text-white z-10">
-            <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center shadow-2xl animate-bounce">
-              <Coins size={48} className="text-white" />
-            </div>
-            <h3 className="text-2xl font-bold mb-4">3D Robux Preview</h3>
-            <p className="text-blue-200 max-w-md mx-auto">
-              Interactive 3D visualization ready for Three.js integration. This container is optimized for immersive experiences.
-            </p>
-            <div className="mt-6 text-sm text-blue-300">
-              Container ID: #robux-3d-preview | Dimensions: Full-width × 400px minimum
-            </div>
+          <div className="w-full h-[400px] z-10">
+            <Coin3D />
           </div>
         </div>
       </section>

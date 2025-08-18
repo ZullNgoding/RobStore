@@ -1,169 +1,209 @@
-import { useEffect } from "react";
-import { Link } from "wouter";
+import { useEffect, useRef } from "react";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { 
-  Zap, 
-  Shield, 
-  Headphones, 
-  Tags, 
-  Smartphone, 
+import  Coin3D  from "@/components/Coin3D";
+import {
+  Zap,
+  Shield,
+  Headphones,
+  Tags,
+  Smartphone,
   History,
-  Coins,
-  Play,
-  Twitter,
-  Youtube,
-  ArrowRight
 } from "lucide-react";
 
 export default function Home() {
   const { user } = useAuth();
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleSmoothScroll = (e: Event) => {
-      const target = e.target as HTMLAnchorElement;
-      if (target.href && target.href.includes('#')) {
-        e.preventDefault();
-        const id = target.href.split('#')[1];
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }
-    };
+    if (!canvasContainerRef.current) return;
 
-    document.addEventListener('click', handleSmoothScroll);
-    return () => document.removeEventListener('click', handleSmoothScroll);
+    // ✅ Setup scene
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      canvasContainerRef.current.clientWidth /
+        canvasContainerRef.current.clientHeight,
+      0.1,
+      1000
+    );
+    camera.position.set(0, 1, 3);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(
+      canvasContainerRef.current.clientWidth,
+      canvasContainerRef.current.clientHeight
+    );
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // 🔹 Biar ringan
+    canvasContainerRef.current.appendChild(renderer.domElement);
+
+    // ✅ Lighting
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+    hemiLight.position.set(0, 20, 0);
+    scene.add(hemiLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(3, 10, 10);
+    scene.add(dirLight);
+
+    let model: THREE.Object3D | null = null;
+
+    // ✅ Load GLTF model (harus di public/3d-model/)
+    const loader = new GLTFLoader();
+    loader.load(
+      "/3d-model/Robux1.glb",
+      (gltf) => {
+        model = gltf.scene;
+        model.scale.set(1.2, 1.2, 1.2);
+        model.position.set(0, -0.5, 0);
+        scene.add(model);
+
+        // ✅ Animation loop lebih ringan
+        renderer.setAnimationLoop(() => {
+          if (model) model.rotation.y += 0.01;
+          renderer.render(scene, camera);
+        });
+      },
+      undefined,
+      (error) => {
+        console.error("Error loading 3D model:", error);
+      }
+    );
+
+    // ✅ Handle resize
+    const handleResize = () => {
+      if (!canvasContainerRef.current) return;
+      camera.aspect =
+        canvasContainerRef.current.clientWidth /
+        canvasContainerRef.current.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(
+        canvasContainerRef.current.clientWidth,
+        canvasContainerRef.current.clientHeight
+      );
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      renderer.setAnimationLoop(null); // stop render loop
+      renderer.dispose();
+      if (canvasContainerRef.current) {
+        canvasContainerRef.current.removeChild(renderer.domElement);
+      }
+      scene.clear();
+      model = null;
+    };
   }, []);
 
+  // ✅ Feature list tetap sama
   const features = [
-    { icon: Zap, title: "Instant Delivery", description: "Get your Robux delivered to your account within seconds of payment confirmation.", gradient: "from-blue-500 to-blue-700" },
-    { icon: Shield, title: "100% Secure", description: "Advanced encryption and secure payment gateways ensure your data is always protected.", gradient: "from-green-500 to-green-600" },
-    { icon: Headphones, title: "24/7 Support", description: "Our dedicated support team is available around the clock to assist you.", gradient: "from-purple-500 to-pink-500" },
-    { icon: Tags, title: "Best Prices", description: "Competitive pricing with regular discounts and special offers for loyal customers.", gradient: "from-yellow-500 to-orange-500" },
-    { icon: Smartphone, title: "Mobile Friendly", description: "Optimized for all devices - purchase Robux easily from your phone or tablet.", gradient: "from-red-500 to-pink-500" },
-    { icon: History, title: "Transaction History", description: "Keep track of all your purchases with detailed transaction history and receipts.", gradient: "from-indigo-500 to-blue-500" },
+    {
+      icon: Zap,
+      title: "Instant Delivery",
+      description: "Get your Robux delivered instantly after payment.",
+      gradient: "from-blue-500 to-blue-700",
+    },
+    {
+      icon: Shield,
+      title: "100% Secure",
+      description: "Secure payment gateways with advanced encryption.",
+      gradient: "from-green-500 to-green-600",
+    },
+    {
+      icon: Headphones,
+      title: "24/7 Support",
+      description: "Our support team is ready anytime.",
+      gradient: "from-purple-500 to-pink-500",
+    },
+    {
+      icon: Tags,
+      title: "Best Prices",
+      description: "We offer competitive and fair pricing.",
+      gradient: "from-yellow-500 to-orange-500",
+    },
+    {
+      icon: Smartphone,
+      title: "Mobile Friendly",
+      description: "Easily access from any device.",
+      gradient: "from-red-500 to-pink-500",
+    },
+    {
+      icon: History,
+      title: "Transaction History",
+      description: "Track all your top-ups and purchases.",
+      gradient: "from-indigo-500 to-blue-500",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
+
       {/* Hero Section */}
       <section id="home" className="pt-16">
-        {/* Welcome Hero Content */}
         <div className="bg-gradient-to-br from-blue-500 via-blue-700 to-purple-600 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-            <div className="text-center animate-in slide-in-from-bottom-8 duration-700">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Welcome back, <span className="text-yellow-300">{user?.firstName || 'Player'}</span>!
-              </h1>
-              <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-                Ready to top up your Robux? Get started with our fast and secure service.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/topup">
-                  <Button
-                    size="lg"
-                    className="bg-green-500 hover:bg-green-600 text-white font-bold text-lg px-8 py-4 shadow-lg hover:shadow-green-500/25 transition-all duration-200"
-                  >
-                    <Zap className="mr-2" size={20} />
-                    Start Top-Up
-                  </Button>
-                </Link>
-                <Link href="/history">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="border-2 border-white text-white hover:bg-white hover:text-blue-700 font-bold text-lg px-8 py-4 transition-all duration-200"
-                  >
-                    <History className="mr-2" size={20} />
-                    View History
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 3D Interactive Container */}
-        <div id="robux-3d-preview" className="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-[400px] flex items-center justify-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-transparent to-green-500/10 animate-pulse"></div>
-          <div className="text-center text-white z-10">
-            <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center shadow-2xl animate-bounce">
-              <Coins size={48} className="text-white" />
-            </div>
-            <h3 className="text-2xl font-bold mb-4">3D Robux Preview</h3>
-            <p className="text-blue-200 max-w-md mx-auto">
-              Interactive 3D visualization ready for Three.js integration. This container is optimized for immersive experiences.
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+            <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
+              Ready to top up your Robux? Fast and secure service awaits.
             </p>
-            <div className="mt-6 text-sm text-blue-300">
-              Container ID: #robux-3d-preview | Dimensions: Full-width × 400px minimum
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/topup">
+                <Button className="bg-green-500 hover:bg-green-600 text-white text-lg px-8 py-4 shadow-lg">
+                  <Zap className="mr-2" size={20} />
+                  Start Top-Up
+                </Button>
+              </Link>
+              <Link to="/history">
+                <Button
+                  variant="outline"
+                  className="border-2 border-white text-white hover:bg-white hover:text-blue-700 text-lg px-8 py-4"
+                >
+                  <History className="mr-2" size={20} />
+                  View History
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Quick Actions */}
-      <section className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-            <p className="text-xl text-gray-600">Everything you need to manage your Robux</p>
-          </div>
+        {/* 3D Preview Section */}
+        <div className="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-[400px] flex items-center justify-center relative overflow-hidden">
+          <div
+            ref={canvasContainerRef}
+            className="absolute inset-0 w-full h-full"
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Link href="/topup">
-              <Card className="group hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-blue-50 to-purple-50">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Coins size={32} className="text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Top-Up Robux</h3>
-                  <p className="text-gray-600 mb-4">Purchase Robux packages with secure payment methods</p>
-                  <div className="flex items-center justify-center text-blue-500 font-medium">
-                    Get Started <ArrowRight size={16} className="ml-1" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/history">
-              <Card className="group hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-green-50 to-blue-50">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <History size={32} className="text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Transaction History</h3>
-                  <p className="text-gray-600 mb-4">View all your past purchases and their status</p>
-                  <div className="flex items-center justify-center text-green-500 font-medium">
-                    View History <ArrowRight size={16} className="ml-1" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-transparent to-green-500/10 animate-pulse"></div>
+          <div className="w-full h-[400px] z-10">
+            <Coin3D />
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50" id="features">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Choose RobuxHub?</h2>
-            <p className="text-xl text-gray-600">Experience the best Robux top-up service with unmatched benefits</p>
-          </div>
-
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-gray-800">
+            Why Choose Us?
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="group hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border-0 bg-white">
-                <CardContent className="p-8 text-center">
-                  <div className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                    <feature.icon size={32} className="text-white" />
+              <Card key={index} className="group hover:shadow-lg">
+                <CardContent className="p-6">
+                  <div
+                    className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6`}
+                  >
+                    <feature.icon className="text-white" size={28} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">{feature.title}</h3>
+                  <h3 className="text-xl font-semibold mb-3 text-gray-800">
+                    {feature.title}
+                  </h3>
                   <p className="text-gray-600">{feature.description}</p>
                 </CardContent>
               </Card>
@@ -171,61 +211,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Brand Section */}
-            <div className="md:col-span-2">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
-                  <Coins className="text-white" size={24} />
-                </div>
-                <span className="text-2xl font-bold">RobuxHub</span>
-              </div>
-              <p className="text-gray-300 mb-6 max-w-md">
-                The most trusted platform for Robux top-ups. Fast, secure, and reliable service for millions of Roblox players worldwide.
-              </p>
-              <div className="flex space-x-4">
-                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
-                  <Twitter size={20} />
-                </div>
-                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
-                  <Youtube size={20} />
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-lg font-semibold mb-6">Quick Links</h3>
-              <ul className="space-y-3">
-                <li><Link href="/" className="text-gray-300 hover:text-white transition-colors">Home</Link></li>
-                <li><Link href="/topup" className="text-gray-300 hover:text-white transition-colors">Top-Up</Link></li>
-                <li><Link href="/history" className="text-gray-300 hover:text-white transition-colors">History</Link></li>
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div>
-              <h3 className="text-lg font-semibold mb-6">Support</h3>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-600 mt-12 pt-8 text-center">
-            <p className="text-gray-300">
-              © 2024 RobuxHub. All rights reserved. Not affiliated with Roblox Corporation.
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
